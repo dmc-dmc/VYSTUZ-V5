@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulátor výstuže V4</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kalkulátor výstuže</h1>
+	    
+            <div class="project-controls">
+                <input type="text" id="projectName" placeholder="Názov projektu">
+                <button id="saveProject">Uložiť projekt</button>
+                <button id="loadProject">Načítať projekt</button>
+                <select id="projectsList" style="display: none;"></select>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" data-tab="spacing">Rozostupy výstuže</button>
+            <button class="tab-button" data-tab="anchorage">Kotevná a stykovacia dĺžka</button>
+        </div>
+
+        <div class="tab-content active" id="spacing-tab">
+            <div class="input-section">
+                <h2>Základné parametre prvku</h2>
+                <div class="form-group">
+                    <label for="width">Šírka prvku b [mm]:</label>
+                    <input type="number" id="width" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="height">Výška prvku h [mm]:</label>
+                    <input type="number" id="height" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="c_nom">Krytie výstuže c_nom [mm]:</label>
+                    <input type="number" id="c_nom" min="0">
+                    <span class="info-icon" title="Krytie výstuže (krycia vrstva betónu)">i</span>
+                </div>
+
+                <h2>Materiály</h2>
+                <div class="form-group">
+                    <label for="concrete-class">Trieda betónu:</label>
+                    <select id="concrete-class"></select>
+                </div>
+                <div class="form-group">
+                    <label for="steel-class">Trieda ocele:</label>
+                    <select id="steel-class"></select>
+                </div>
+                <div class="form-group">
+                    <label for="gamma-c">Súčiniteľ spoľahlivosti γ<sub>c</sub>:</label>
+                    <input type="number" id="gamma-c" value="1.5" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="gamma-s">Súčiniteľ spoľahlivosti γ<sub>s</sub>:</label>
+                    <input type="number" id="gamma-s" value="1.15" step="0.01" min="0">
+                </div>
+
+                <h2>Dolná výstuž</h2>
+                <div class="form-group">
+                    <label for="phi_sl_bottom">Priemer pozdĺžnej výstuže ϕ<sub>sl</sub> [mm]:</label>
+                    <select id="phi_sl_bottom"></select>
+                </div>
+                <div class="form-group">
+                    <label for="n_bottom">Počet prutov n:</label>
+                    <input type="number" id="n_bottom" min="0">
+                </div>
+
+                <h2>Horná výstuž</h2>
+                <div class="form-group">
+                    <label for="phi_sl_top">Priemer pozdĺžnej výstuže ϕ<sub>sl</sub> [mm]:</label>
+                    <select id="phi_sl_top"></select>
+                </div>
+                <div class="form-group">
+                    <label for="n_top">Počet prutov n:</label>
+                    <input type="number" id="n_top" min="0">
+                </div>
+
+                <h2>Strmene</h2>
+                <div class="form-group">
+                    <label for="phi_ss">Priemer strmeňa ϕ<sub>ss</sub> [mm]:</label>
+                    <select id="phi_ss"></select>
+                </div>
+
+                <h2>Vystuženie</h2>
+                <div class="form-group">
+                    <label for="min-reinforcement">Minimálne vystuženie [%]:</label>
+                    <input type="number" id="min-reinforcement" value="0.2" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="max-reinforcement">Maximálne vystuženie [%]:</label>
+                    <input type="number" id="max-reinforcement" value="4.0" step="0.01" min="0">
+                </div>
+
+                <button id="calculateSpacing">Vypočítať</button>
+            </div>
+
+            <div class="output-section">
+                <button id="showReinforcementTable">Zobraziť tabuľku plôch výstuže</button>
+                <div class="results" id="spacing-results">
+                    <h2>Výsledky výpočtu</h2>
+                    <div id="results-content">
+                        <p>Tu sa zobrazia výsledky výpočtu.</p>
+                    </div>
+                </div>
+
+                <div class="visualization">
+                    <h2>Grafické znázornenie</h2>
+                    <canvas id="visualization-canvas"></canvas>
+                    <div id="visualization-legend" class="visualization-legend"></div>
+                </div>
+
+                <button id="showCalcDetails" class="toggle-button">Zobraziť detaily výpočtu</button>
+                <div id="calculation-details" style="display: none;">
+                    <h3>Detaily výpočtu</h3>
+                    <div id="calc-details-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="anchorage-tab">
+            <div class="input-section">
+                <h2>Výpočet kotevnej a stykovacej dĺžky</h2>
+                
+                <div class="form-group">
+                    <label for="anchorage-concrete-class">Trieda betónu:</label>
+                    <select id="anchorage-concrete-class"></select>
+                </div>
+                <div class="form-group">
+                    <label for="anchorage-steel-class">Trieda ocele:</label>
+                    <select id="anchorage-steel-class"></select>
+                </div>
+                <div class="form-group">
+                    <label for="anchorage-phi">Priemer prúta ϕ [mm]:</label>
+                    <select id="anchorage-phi"></select>
+                </div>
+
+                <button id="showTable">Zobraziť tabuľku kotevnej dĺžky</button>
+                <button id="calculateAnchorage">Vypočítať</button>
+            </div>
+
+            <div class="output-section">
+                <div class="results" id="anchorage-results">
+                    <h2>Výsledky výpočtu</h2>
+                    <div id="anchorage-results-content">
+                        <p>Tu sa zobrazia výsledky výpočtu.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tableModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Tabuľka kotevnej dĺžky</h2>
+                <div id="kotevna-tabulka"></div>
+            </div>
+        </div>
+
+        <div id="reinforcementTableModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Tabuľka plôch výstuže A<sub>s</sub> [cm²]</h2>
+                <div id="reinforcement-table"></div>
+            </div>
+        </div>
+
+        <footer>
+            <h3>Použité vzťahy vo výpočtoch:</h3>
+            <div class="formulas">
+                <div class="formula">
+                    <p>Vzdialenosť prútov s [mm] = (b - 2×c_nom - 2×ϕ_ss - (n×ϕ_sl)) / (n-1)</p>
+                </div>
+                <div class="formula">
+                    <p>Plocha výstuže A<sub>s</sub> [cm²] - hodnoty z tabuľky plôch výstuže</p>
+                </div>
+                <div class="formula">
+                    <p>Stupeň vystuženia ρ = A<sub>s</sub> / (b × h)</p>
+                </div>
+                <div class="formula">
+                    <p>Kotevná dĺžka l<sub>bd</sub> = α × ϕ</p>
+                </div>
+                <div class="formula">
+                    <p>Stykovacia dĺžka l<sub>sd</sub> = l<sub>bd</sub> × k<sub>ls</sub> (kde k<sub>ls</sub> = 1,2)</p>
+                </div>
+            </div>
+	    <h6 style="margin-top: 30px; text-align: center;">
+    		DR-Soft: Kalkulátor Výstuže - Rozostupy, stupeň vystuženia a Kotevná dĺžka. 2025. Verzia V4
+	    </h6>
+        </footer>
+    </div>
+
+    <script src="calculator.js"></script>
+    <script src="visualization.js"></script>
+    <script src="storage.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
